@@ -3,19 +3,14 @@
  * 規則：可重複執行（先清空、再種入資料），即使執行多次也不會有資料疊加的狀況。
  * 執行順序：一定要先 npm run migration:run（沒有資料表，就無法種資料）
  */
-const { dataSource } = require('./data-source')
+const { dataSource } = require("./data-source");
 
-/** 清空：被 FK 指著的表最後刪（GRADE 先刪，CLASS / SUBJECT 最後刪）。
- *  不用 clear()（TRUNCATE 會被 FK 擋）、不用 delete({})（TypeORM 拒絕空條件）。 */
 async function clearAll() {
-  const ORDER = [
-    // TODO: 按「你的」FK 依賴順序填 entity name（先刪 Grade，再 Student，最後 Class / Subject）
-  ]
-  for (const name of ORDER) {
-    if (dataSource.hasMetadata(name)) {
-      await dataSource.createQueryBuilder().delete().from(name).execute()
-    }
-  }
+  // 先刪除有外鍵的資料表
+  await dataSource.query(`DELETE FROM "GRADE"`);
+  await dataSource.query(`DELETE FROM "STUDENT"`);
+  await dataSource.query(`DELETE FROM "SUBJECT"`);
+  await dataSource.query(`DELETE FROM "CLASS"`);
 }
 
 async function main() {
@@ -31,7 +26,36 @@ async function main() {
   //      studentRepo.save({ name: '...', class: 班級物件 })
   //      gradeRepo.save({ score: 95, student: 學生物件, subject: 科目物件 })
   // ================================================================================
+  // 建立兩個班級
+  const classes = await dataSource.query(
+    `INSERT INTO "CLASS" ("name")
+     VALUES ($1), ($2)
+     RETURNING "id"`,
+    ["一年甲班", "一年乙班"]
+  );
 
+  // 建立兩個科目
+  const subjects = await dataSource.query(
+    `INSERT INTO "SUBJECT" ("name")
+     VALUES ($1), ($2)
+     RETURNING "id"`,
+    ["數學", "英文"]
+  );
+
+  // 建立學生並接上班級
+  const students = await dataSource.query(
+    `INSERT INTO "STUDENT" ("name", "class_id")
+     VALUES ($1, $2)
+     RETURNING "id"`,
+    ["小明", classes[0].id]
+  );
+
+  // 建立成績並接上學生與科目
+  await dataSource.query(
+    `INSERT INTO "GRADE" ("score", "student_id", "subject_id")
+     VALUES ($1, $2, $3)`,
+    [90, students[0].id, subjects[0].id]
+  );
   console.log('🌱 seed 完成')
   await dataSource.destroy()
 }

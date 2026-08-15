@@ -18,7 +18,60 @@ async function clearAll() {
 async function main() {
   await dataSource.initialize()
   await clearAll()
+const skillRepo = dataSource.getRepository("Skill")
+const userRepo = dataSource.getRepository("User")
+const courseRepo = dataSource.getRepository("Course")
 
+const skill1 = await skillRepo.save({ name:"重訓"}) 
+const skill2 = await skillRepo.save({ name:"瑜珈"}) 
+const skill3 = await skillRepo.save({ name:"飛輪"}) 
+
+const user1 = await userRepo.save({ 
+  name:"海格教練",
+  email:"coach1@livefit.tw",
+  role:"COACH"
+}) 
+const user2 = await userRepo.save({ 
+  name:"小美教練",
+  email:"coach2@livefit.tw",
+  role:"COACH"
+}) 
+await courseRepo.save({
+    name: "肌力入門班",
+    description: "適合初學者的肌力訓練課程",
+    start_at: "2026-08-01 09:00",
+    end_at: "2026-08-01 10:30",
+    max_participants: 20,
+    user: user1, // ← 放教練物件，等於 INSERT INTO "COURSE" (user_id) VALUES ('hagrid 的 uuid')
+    skill: skill1, // ← 放技能物件，同理自動取 id 填入 skill_id
+  });
+  await courseRepo.save({
+    name: "週末飛輪",
+    description: "適合初學者的週末飛輪課程",
+    start_at: "2026-08-01 09:00",
+    end_at: "2026-08-01 10:30",
+    max_participants: 10,
+    user: user2, // ← 放教練物件，等於 INSERT INTO "COURSE" (user_id) VALUES ('hagrid 的 uuid')
+    skill: skill3, // ← 放技能物件，同理自動取 id 填入 skill_id
+  });
+  await courseRepo.save({
+    name: "晨間瑜珈",
+    description: "適合初學者的晨間瑜珈課程",
+    start_at: "2026-08-01 09:00",
+    end_at: "2026-08-01 10:30",
+    max_participants: 30,
+    user: user2, // ← 放教練物件，等於 INSERT INTO "COURSE" (user_id) VALUES ('hagrid 的 uuid')
+    skill: skill2, // ← 放技能物件，同理自動取 id 填入 skill_id
+  });
+  await courseRepo.save({
+    name: "核心特訓",
+    description: "適合初學者的核心特訓課程",
+    start_at: "2026-08-01 09:00",
+    end_at: "2026-08-01 10:30",
+    max_participants: 20,
+    user: user2, // ← 放教練物件，等於 INSERT INTO "COURSE" (user_id) VALUES ('hagrid 的 uuid')
+    skill: skill2, // ← 放技能物件，同理自動取 id 填入 skill_id
+  });
   // ======================================================================
   // TODO：依照任務內容的規格寫入資料
   //   1. SKILL 三筆：重訓、瑜珈、飛輪
