@@ -1,4 +1,5 @@
 require('dotenv').config()
+const path = require("path");
 const { DataSource } = require('typeorm')
 const Class = require("../entities/Class");
 const Subject = require("../entities/Subject");
@@ -24,7 +25,7 @@ const dataSource = new DataSource({
 
 // entities 陣列改為：
 entities: [Class, Subject, Student, Grade],
-  migrations: ['db/migrations/*.js'],
+  migrations: [path.join(__dirname, "migrations", "*.js")],
 })
 
 module.exports = { dataSource }
