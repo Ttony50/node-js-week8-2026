@@ -1,6 +1,18 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+/**
+ * @typedef {import('typeorm').MigrationInterface} MigrationInterface
+ * @typedef {import('typeorm').QueryRunner} QueryRunner
+*/
 
-export class InitLivefit1787315319190 implements MigrationInterface {
+/**
+ * @class
+ * @implements {MigrationInterface}
+ */
+module.exports = class Init1786796656379 {
+    name = 'Init1786796656379'
+
+    /**
+     * @param {QueryRunner} queryRunner
+     */
 
     async up(queryRunner) {
   await queryRunner.query(`
